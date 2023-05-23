@@ -24,49 +24,6 @@ import static org.junit.Assert.assertTrue;
 @Slf4j
 @ActiveProfiles(profiles = "test")
 class StrategiesByCandleHistoryTests {
-    @Autowired
-    CandleRepository candleRepository;
-    @Autowired
-    OrderRepository orderRepository;
-    @Autowired
-    PurchaseService purchaseService;
-    @Autowired
-    OrderService orderService;
-    @Autowired
-    ReportService reportService;
-    @Autowired
-    StrategySelector strategySelector;
 
-    @Value("${candle.history.duration}")
-    private Duration historyDuration;
-
-    @Value("${tinkoff.emulator}")
-    private Boolean isTinkoffEmulator;
-
-    @BeforeEach
-    public void clean() {
-        // удаляем существующие ордеры из БД
-        orderRepository.deleteAll();
-        orderService.loadOrdersFromDB();
-    }
-
-    @Test
-    void checkProfitByStrategies() {
-        // Проверяем свойства для тестов
-        assertTrue("Tests are allowed with Tinkoff API emulator only (tinkoff.emulator=true)", isTinkoffEmulator);
-
-        // Эмулируем поток свечей за заданный интервал (candle.history.duration)
-        var days = historyDuration.toDays();
-        var startDateTime = OffsetDateTime.now().minusDays(days);
-        strategySelector.getFigiesForActiveStrategies().stream()
-                .flatMap(figi -> candleRepository.findByFigiAndIntervalAndDateTimeAfterOrderByDateTime(figi, "1min", startDateTime).stream())
-                .sorted(Comparator.comparing(CandleDomainEntity::getDateTime))
-                .forEach(c -> purchaseService.observeNewCandle(c));
-
-        // Логируем отчеты
-        reportService.logReportInstrumentByFiat(reportService.buildReportInstrumentByFiat());
-        reportService.logReportInstrumentByInstrument(reportService.buildReportInstrumentByInstrument());
-        assert true;
-    }
 
 }

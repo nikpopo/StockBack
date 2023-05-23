@@ -38,12 +38,13 @@ public abstract class ATinkoffAPI implements ITinkoffCommonAPI, ITinkoffOrderAPI
 
     @PostConstruct
     private void init() {
-        api = isSandboxMode ? InvestApi.createSandbox(token, "roman-struchev") : InvestApi.create(token, "roman-struchev");
-
+        api = isSandboxMode ? InvestApi.createSandbox(token, "nikita-mikhail") : InvestApi.create(token, "nikita-mikhail");
         // Проверяем, что аккаунт существует (если задан в конфигах) или выбираем первый
-        var accounts = isSandboxMode
-                ? api.getSandboxService().getAccountsSync() : api.getUserService().getAccountsSync();
+        var accountI = api.getSandboxService().openAccountSync();
+        var accounts =  api.getSandboxService().getAccountsSync();
+
         log.info("Available accounts: {}", accounts.size());
+
         accounts.forEach(a -> log.info("Account id {}, name {}", a.getId(), a.getName()));
         var account = accounts.stream()
                 .filter(a -> a.getType() == AccountType.ACCOUNT_TYPE_TINKOFF)
