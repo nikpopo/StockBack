@@ -8,7 +8,7 @@ select a.figi_title                                                   figi,
 from (select o.figi_title,
              o.strategy,
              o.lots,
-             count(o.*)                                                                                     offers,
+             count(o.id)                                                                                     offers,
              sum((o.sell_price - o.purchase_price) * o.lots - o.purchase_commission - o.sell_commission)    total,
              (select c.closing_price from candle c where c.figi = o.figi order by c.date_time desc limit 1) last_price,
              (select oi.purchase_price from offer oi where oi.figi = o.figi order by oi.id limit 1)         first_price
